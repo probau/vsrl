@@ -287,14 +287,21 @@
 
         /* Mobile */
         @media (max-width: 480px) {
+            body {
+                background-size: auto 100vh;
+                background-position: center center;
+            }
+
             body::before {
                 background: rgba(0, 0, 0, 0.85);
             }
 
             .container {
-                padding: 14px 18px 14px 18px;
+                padding: 16px 18px;
                 justify-content: space-between;
                 height: 100vh;
+                max-height: 100vh;
+                overflow: hidden;
             }
 
             .logo img {
@@ -309,7 +316,7 @@
                 display: flex;
                 flex-direction: column;
                 justify-content: center;
-                padding: 20px 0;
+                padding: 10px 0;
             }
 
             .center-content p {
