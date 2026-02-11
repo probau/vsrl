@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VSRL</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            cursor: none;
+        }
+
+        body {
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            background-color: #000000;
+            background-image: url('https://images.unsplash.com/photo-1561214115-f2f134cc4912?w=1920&q=80');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            color: #e0e0e0;
+            height: 100vh;
+            width: 100vw;
+            overflow: hidden;
+            position: relative;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        /* Dark overlay to darken the concrete */
+        body > *:not(#cursor) {
+            position: relative;
+            z-index: 3;
+        }
+
+        /* Custom 3D Cube Cursor */
+        #cursor {
+            width: 16px;
+            height: 16px;
+            position: fixed;
+            pointer-events: none;
+            z-index: 9999;
+            transform: translate(-50%, -50%);
+            transition: all 0.1s ease;
+            transform-style: preserve-3d;
+        }
+
+        #cursor .cube {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            transform-style: preserve-3d;
+            transform: rotateX(-25deg) rotateY(35deg);
+        }
+
+        #cursor .cube-face {
+            position: absolute;
+            width: 16px;
+            height: 16px;
+            border: 1px solid #e0e0e0;
+            background: rgba(0, 0, 0, 0.2);
+        }
+
+        #cursor .front  { transform: translateZ(8px); }
+        #cursor .back   { transform: translateZ(-8px) rotateY(180deg); }
+        #cursor .right  { transform: rotateY(90deg) translateZ(8px); }
+        #cursor .left   { transform: rotateY(-90deg) translateZ(8px); }
+        #cursor .top    { transform: rotateX(90deg) translateZ(8px); border-color: #fff; }
+        #cursor .bottom { transform: rotateX(-90deg) translateZ(8px); }
+
+        /* Dark overlay for graffiti */
+        body::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.90);
+            z-index: 1;
+            animation: breathe 2s ease-in-out infinite;
+        }
+
+        /* Film Grain & Dirt */
+        body::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image:
+                url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='6.5' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.2'/%3E%3C/svg%3E"),
+                radial-gradient(circle at 15% 25%, rgba(80, 80, 80, 0.02) 0%, transparent 40%),
+                radial-gradient(circle at 85% 70%, rgba(70, 70, 70, 0.015) 0%, transparent 35%),
+                radial-gradient(circle at 50% 90%, rgba(75, 75, 75, 0.02) 0%, transparent 45%);
+            opacity: 1;
+            z-index: 2;
+            pointer-events: none;
+        }
+
+        @keyframes breathe {
+            0%, 100% {
+                opacity: 0.96;
+            }
+            50% {
+                opacity: 1;
+            }
+        }
+
+        /* Main Container */
+        .container {
+            position: relative;
+            z-index: 3;
+            height: 100vh;
+            width: 100%;
+            padding: 40px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        /* Logo */
+        .logo {
+            text-align: left;
+        }
+
+        .logo img {
+            height: 80px;
+            width: auto;
+            display: block;
+            mix-blend-mode: lighten;
+            filter: brightness(1.1);
+        }
+
+        /* Social Icons */
+        .social-icons {
+            display: flex;
+            gap: 16px;
+            align-items: center;
+        }
+
+        .social-icons a {
+            opacity: 0.5;
+            transition: opacity 0.2s ease;
+            display: inline-block;
+        }
+
+        .social-icons a:hover {
+            opacity: 1;
+        }
+
+        .social-icons svg {
+            width: 18px;
+            height: 18px;
+            fill: #e0e0e0;
+        }
+
+        /* Center Content */
+        .center-content {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: left;
+        }
+
+        .center-content p {
+            font-size: 24px;
+            line-height: 1.4;
+            margin: 0;
+            white-space: nowrap;
+        }
+
+        .center-content .line-1 {
+            margin-bottom: 4px;
+        }
+
+        .center-content .line-2 {
+            margin-bottom: 28px;
+        }
+
+        .center-content .line-3 {
+            margin-bottom: 0;
+        }
+
+        /* CTA Link */
+        .cta {
+            margin-top: 40px;
+            display: inline-block;
+            color: #b8860b;
+            text-decoration: none;
+            font-size: 20px;
+            position: relative;
+            transition: all 0.2s ease;
+        }
+
+        .cta:hover {
+            filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.3));
+            animation: jitter 0.1s infinite;
+        }
+
+        @keyframes jitter {
+            0% { transform: translate(0, 0); }
+            25% { transform: translate(-1px, 1px); }
+            50% { transform: translate(1px, -1px); }
+            75% { transform: translate(-1px, -1px); }
+            100% { transform: translate(1px, 1px); }
+        }
+
+        /* Footer */
+        .footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .email {
+            font-size: 14px;
+            color: #666666;
+            text-decoration: none;
+            transition: color 0.2s ease;
+        }
+
+        .email:hover {
+            color: #e0e0e0;
+        }
+
+        /* Large Desktop */
+        @media (min-width: 1440px) {
+            .logo img {
+                height: 100px;
+            }
+
+            .center-content p {
+                font-size: 32px;
+            }
+
+            .cta {
+                font-size: 26px;
+            }
+
+            .email {
+                font-size: 16px;
+            }
+
+            .social-icons svg {
+                width: 20px;
+                height: 20px;
+            }
+        }
+
+        /* Tablet */
+        @media (max-width: 768px) {
+            .container {
+                padding: 24px;
+            }
+
+            .logo img {
+                height: 60px;
+            }
+
+            .center-content p {
+                font-size: 20px;
+                white-space: normal;
+            }
+
+            .cta {
+                font-size: 18px;
+                margin-top: 32px;
+            }
+
+            .email {
+                font-size: 12px;
+            }
+
+            .social-icons {
+                gap: 14px;
+            }
+
+            .social-icons svg {
+                width: 16px;
+                height: 16px;
+            }
+        }
+
+        /* Mobile */
+        @media (max-width: 480px) {
+            body::before {
+                background: rgba(0, 0, 0, 0.88);
+            }
+
+            .container {
+                padding: 20px 16px;
+                justify-content: flex-start;
+                gap: 0;
+            }
+
+            .logo img {
+                height: 50px;
+            }
+
+            .center-content {
+                position: static;
+                transform: none;
+                margin-top: 25vh;
+                margin-bottom: auto;
+            }
+
+            .center-content p {
+                font-size: 16px;
+                line-height: 1.4;
+                white-space: normal;
+                max-width: 100%;
+            }
+
+            .center-content .line-1 {
+                margin-bottom: 3px;
+            }
+
+            .center-content .line-2 {
+                margin-bottom: 20px;
+            }
+
+            .cta {
+                font-size: 16px;
+                margin-top: 24px;
+            }
+
+            .footer {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 12px;
+                margin-top: auto;
+            }
+
+            .email {
+                font-size: 11px;
+            }
+
+            .social-icons {
+                gap: 12px;
+                align-self: flex-start;
+            }
+
+            .social-icons svg {
+                width: 14px;
+                height: 14px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Custom 3D Cube Cursor -->
+    <div id="cursor">
+        <div class="cube">
+            <div class="cube-face front"></div>
+            <div class="cube-face back"></div>
+            <div class="cube-face right"></div>
+            <div class="cube-face left"></div>
+            <div class="cube-face top"></div>
+            <div class="cube-face bottom"></div>
+        </div>
+    </div>
+
+    <!-- Main Container -->
+    <div class="container">
+        <!-- Logo -->
+        <div class="logo">
+            <img src="vsrl-logo.png" alt="VSRL">
+        </div>
+
+        <!-- Center Content -->
+        <div class="center-content">
+            <p class="line-1">Life is not a sequence of frames.</p>
+            <p class="line-2">It's the visceral friction of being.</p>
+            <p class="line-3">VSRL archives the architecture of the now.</p>
+            <a href="https://app.visceralreality.de" class="cta">Step inside.</a>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+            <a href="mailto:hello@visceralreality.de" class="email">hello@visceralreality.de</a>
+            <div class="social-icons">
+                <a href="https://instagram.com/vsrl" target="_blank" rel="noopener noreferrer">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                        <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
+                    </svg>
+                </a>
+                <a href="https://www.tiktok.com/@VSRLBerlin" target="_blank" rel="noopener noreferrer">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                        <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64 2.93 2.93 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-1-.05A6.33 6.33 0 0 0 5 20.1a6.34 6.34 0 0 0 10.86-4.43v-7a8.16 8.16 0 0 0 4.77 1.52v-3.4a4.85 4.85 0 0 1-1-.1z"/>
+                    </svg>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Custom Cursor
+        const cursor = document.getElementById('cursor');
+
+        document.addEventListener('mousemove', (e) => {
+            cursor.style.left = e.clientX + 'px';
+            cursor.style.top = e.clientY + 'px';
+        });
+
+        // Prevent scrolling
+        document.body.style.overflow = 'hidden';
+    </script>
+</body>
+</html>
